@@ -13,7 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 
 from .sendemail import send_confirmation_mail, send_password_reset_mail
-from account import serializers
+from applications.account import serializers
 
 User = get_user_model()
 
