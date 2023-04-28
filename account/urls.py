@@ -19,10 +19,12 @@ urlpatterns = [
     path('<int:pk>/send_friend_request/',
          views.SendFriendRequestView.as_view(),
          name='send friend request'),
+    path('<int:pk>/block_user/', views.BlockUserView.as_view()),
     path('friend_requests/',
          views.FriendRequestsListView.as_view()),
     path('friend_requests/<int:pk>/',
          views.HandleFriendRequestView.as_view(),
          name='accept friend request'),
     path('blacklist/', TokenBlacklistView.as_view()),
+
 ]

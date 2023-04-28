@@ -53,7 +53,7 @@ class CustomUser(AbstractUser):
     eng_level = models.PositiveSmallIntegerField(choices=ENGLISH_LEVELS)
     gender = models.PositiveSmallIntegerField(choices=GENDER_CHOICES)
     friends = models.ManyToManyField('account.CustomUser', blank=True, related_name='related_friends')
-
+    blocked_users = models.ManyToManyField('account.CustomUser', blank=True, related_name='blocked_list')
 
     is_active = models.BooleanField(
         _("active"),

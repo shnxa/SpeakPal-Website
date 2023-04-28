@@ -9,6 +9,7 @@ from .sendemail import *
 User = get_user_model()
 
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -21,7 +22,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'password', 'password_confirmation', 'email')
+        fields = ('username', 'first_name', 'last_name', 'password', 'password_confirmation', 'email', 'mlang',
+                  'eng_level', 'gender')
 
     def validate(self, attrs):
         password2 = attrs.pop('password_confirmation')
@@ -94,7 +96,6 @@ class FriendListSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return {'friends': FriendSerializer(instance.related_friends.all(), many=True).data}
-
 class FriendSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -106,13 +107,10 @@ class FriendSerializer(serializers.ModelSerializer):
         represent.pop('last_name')
         represent.pop('eng_level')
         return represent
-
-
 class FriendRequestsSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRequest
         fields = '__all__'
-
 class FriendReqInSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRequest
@@ -128,8 +126,6 @@ class FriendReqInSerializer(serializers.ModelSerializer):
         represent['email'] = user.email
         represent['username'] = user.username
         return represent
-
-
 class FriendReqOutSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRequest
@@ -145,8 +141,6 @@ class FriendReqOutSerializer(serializers.ModelSerializer):
         represent['email'] = user.email
         represent['username'] = user.username
         return represent
-
-
 class FriendHandleSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRequest
