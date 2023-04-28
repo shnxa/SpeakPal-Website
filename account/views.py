@@ -58,6 +58,7 @@ class UserListApiView(ListAPIView):
     permission_classes = permissions.IsAuthenticated,
 
 
+
 class LoginView(TokenObtainPairView):
     permission_classes = (permissions.AllowAny,)
 
@@ -184,5 +185,22 @@ class FriendsListView(APIView):
         serializer = serializers.FriendListSerializer(instance=user)
         return Response(serializer.data, status=200)
 
+
+class BlockUserView(APIView):
+    permission_classes = permissions.IsAuthenticated,
+
+    def post(self, request, pk):
+        user = request.user
+        try:
+            b_user = User.objects.get(id=pk)
+        except User.DoesNotExist:
+            return Response({'msg': 'User not found'}, status=404)
+        if b_user in user.blocked_list.all():
+            return Response({"msg": "You\'ve already blocked this person!"}, status=400)
+        else:
+            user.blocked_list.add(b_user)
+            if b_user in user.related_friends.all():
+                user.related_friends.delete(b_user)
+            return Response({"msg": "Successfully blocked!"}, status=200)
 
 
