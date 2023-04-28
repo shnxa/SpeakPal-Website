@@ -46,7 +46,6 @@ INSTALLED_APPS = [
 
     'applications.account',
     'applications.review',
-    'applications.calls',
 ]
 
 MIDDLEWARE = [
@@ -147,6 +146,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
+
+BROKER_URL = 'redis://127.0.0.1:6379/0'
+BROKER_TRANSPORT = 'redis'
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),

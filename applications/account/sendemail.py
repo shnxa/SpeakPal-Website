@@ -1,7 +1,9 @@
 from celery import shared_task
 from django.core.mail import send_mail
 from decouple import config
+from config import app
 
+@app.task
 def send_confirmation_mail(user, code):
     send_mail(
         subject='Письмо активации | ',
@@ -9,7 +11,8 @@ def send_confirmation_mail(user, code):
         f'\n\n{code}\n'
         f'\nНикому не передавайте данный код!'
         '\n\n\n',
-        from_email=config('EMAIL_USER'),
+        # from_email=config('EMAIL_USER'),
+        from_email='sabyrkulov.nurmuhammed@gmail.com',
         recipient_list=[user],
         fail_silently=False,
     )
