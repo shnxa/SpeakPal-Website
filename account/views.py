@@ -13,7 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 
 from .models import FriendRequest
-from .sendemail import send_confirmation_mail, send_password_reset_mail
+from .tasks import send_confirmation_mail, send_password_reset_mail
 from account import serializers
 
 User = get_user_model()
@@ -33,7 +33,7 @@ class RegistrationView(APIView):
             return Response({'msg': 'Something went wrong, check input please'}, status=400)
         if user:
             try:
-                send_confirmation_mail(user.email, user.activation_code)
+                send_confirmation_mail.delay(user.email, user.activation_code)
                 return Response({'msg': "Check your email for confirmation!"})
             except:
                 return Response({'msg': 'Registered but could not send email.',
@@ -93,7 +93,7 @@ class PasswordResetView(APIView):
             user.save()
         except User.DoesNotExist:
             return Response({'msg': 'Invalid email or not found!'}, status=400)
-        send_password_reset_mail(user.email, user.activation_code)
+        send_password_reset_mail.delay(user.email, user.activation_code)
         return Response({'msg': 'Confirmation code sent!'}, status=200)
 
     @staticmethod
@@ -121,6 +121,8 @@ class SendFriendRequestView(APIView):
             to_user = User.objects.get(id=pk)
         except User.DoesNotExist:
             return Response({'msg': 'User not found'}, status=404)
+        if to_user in from_user.blocked_list.all():
+            return Response({"msg": "This person is in your blocked list, can't send friend request!"}, status=400)
         if from_user in to_user.related_friends.all():
             return Response({'msg': 'You are already friends!'}, status=400)
         friend_request, created = FriendRequest.objects.get_or_create(from_user=from_user, to_user=to_user)
