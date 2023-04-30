@@ -1,10 +1,13 @@
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
-from .sendemail import *
+
+from .models import FriendRequest
+from .tasks import *
 
 
 User = get_user_model()
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -19,7 +22,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'password', 'password_confirmation', 'email')
+        fields = ('username', 'first_name', 'last_name', 'password', 'password_confirmation', 'email', 'mlang',
+                  'eng_level', 'gender')
 
     def validate(self, attrs):
         password2 = attrs.pop('password_confirmation')
@@ -84,3 +88,61 @@ class PasswordResetSerializer(serializers.Serializer):
             user.save()
         except User.DoesNotExist:
             self.fail('bad_code')
+
+class FriendListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('friends',)
+
+    def to_representation(self, instance):
+        return {'friends': FriendSerializer(instance.related_friends.all(), many=True).data}
+class FriendSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        exclude = ('password', 'activation_code', 'password_reset_code', 'user_permissions', 'friends',)
+
+    def to_representation(self, instance):
+        represent = super().to_representation(instance)
+        represent.pop('first_name')
+        represent.pop('last_name')
+        represent.pop('eng_level')
+        return represent
+class FriendRequestsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FriendRequest
+        fields = '__all__'
+class FriendReqInSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FriendRequest
+        exclude = ('to_user',)
+
+    def to_representation(self, instance):
+        represent = super().to_representation(instance)
+        user = User.objects.get(id=represent['from_user'])
+        req_id = represent.pop('id')
+        user_id = represent.pop('from_user')
+        represent['user_id'] = user_id
+        represent['request_id'] = req_id
+        represent['email'] = user.email
+        represent['username'] = user.username
+        return represent
+class FriendReqOutSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FriendRequest
+        exclude = ('from_user',)
+
+    def to_representation(self, instance):
+        represent = super().to_representation(instance)
+        user = User.objects.get(id=represent['to_user'])
+        req_id = represent.pop('id')
+        user_id = represent.pop('to_user')
+        represent['user_id'] = user_id
+        represent['request_id'] = req_id
+        represent['email'] = user.email
+        represent['username'] = user.username
+        return represent
+class FriendHandleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FriendRequest
+        fields = ('active',)
+
