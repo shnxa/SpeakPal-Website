@@ -24,12 +24,12 @@ class RegistrationView(APIView):
     @staticmethod
     @swagger_auto_schema(request_body=serializers.RegistrationSerializer)
     def post(request):
-        try:
-            serializer = serializers.RegistrationSerializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            user = serializer.save()
-        except django.db.utils.IntegrityError:
-            return Response({'msg': 'Something went wrong, check input please'}, status=400)
+        # try:
+        serializer = serializers.RegistrationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        # except django.db.utils.IntegrityError:
+        #     return Response({'msg': 'Something went wrong, check input please'}, status=400)
         if user:
             try:
                 send_confirmation_mail.delay(user.email, user.activation_code)
@@ -54,7 +54,7 @@ class ActivationView(GenericAPIView):
 class UserListApiView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
-    permission_classes = permissions.IsAuthenticated,
+    permission_classes = permissions.IsAuthenticatedOrReadOnly,
 
 
 
@@ -203,5 +203,3 @@ class BlockUserView(APIView):
             if b_user in user.related_friends.all():
                 user.related_friends.delete(b_user)
             return Response({"msg": "Successfully blocked!"}, status=200)
-
-

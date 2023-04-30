@@ -31,6 +31,9 @@ class UserManager(BaseUserManager):
         kwargs.setdefault('is_staff', True)
         kwargs.setdefault('is_superuser', True)
         kwargs.setdefault('is_active', True)
+        kwargs.setdefault('eng_level', 1)
+        kwargs.setdefault('gender', 3)
+        kwargs.setdefault('username', 'ADMIN')
         return self._create_user(email, password, **kwargs)
 
 
