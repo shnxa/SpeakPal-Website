@@ -1,4 +1,3 @@
-from django.shortcuts import render
 import uuid
 
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -14,7 +13,7 @@ from rest_framework import status
 
 from .models import FriendRequest
 from .tasks import send_confirmation_mail, send_password_reset_mail
-from account import serializers
+from applications.account import serializers
 
 User = get_user_model()
 
