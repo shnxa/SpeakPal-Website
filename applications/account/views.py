@@ -57,6 +57,7 @@ class UserListApiView(ListAPIView):
     permission_classes = permissions.IsAuthenticated,
 
 
+
 class LoginView(TokenObtainPairView):
     permission_classes = (permissions.AllowAny,)
 
