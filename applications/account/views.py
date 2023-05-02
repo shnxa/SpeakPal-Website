@@ -49,6 +49,10 @@ class ActivationView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({"msg": "Successfully activated!"}, status=200)
+    
+    def get_queryset(self):
+        return super().get_queryset()
+    
 
 
 class UserListApiView(ListAPIView):
