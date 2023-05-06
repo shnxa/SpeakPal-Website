@@ -11,3 +11,4 @@ tzlocal
 django-filter
 redis
 flower
+django-cors-headers

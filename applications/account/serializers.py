@@ -102,7 +102,7 @@ class FriendListSerializer(serializers.ModelSerializer):
 class FriendSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        exclude = ('password', 'activation_code', 'password_reset_code', 'user_permissions', 'friends',)
+        exclude = ('password', 'activation_code', 'user_permissions', 'friends',)
 
     def to_representation(self, instance):
         represent = super().to_representation(instance)

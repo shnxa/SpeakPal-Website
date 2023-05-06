@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 from decouple import config
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,8 +30,8 @@ DEBUG = True
 ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
 
 #CELERY SETTINGS
-BROKER_URL = 'redis://127.0.0.1:6379/0'
-BROKER_TRANSPORT = 'redis' 
+BROKER_URL = config('BROKER_URL')
+BROKER_TRANSPORT = config('BROKER_TRANSPORT')
 
 # Application definition
 INSTALLED_APPS = [
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
     'drf_yasg',
 
     'applications.account',
@@ -62,6 +64,15 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+# Cors settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
 
 TEMPLATES = [
     {
