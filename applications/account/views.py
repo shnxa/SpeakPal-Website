@@ -5,7 +5,7 @@ from rest_framework import permissions
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
-from rest_framework.generics import GenericAPIView, ListAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView
 import django.db.utils
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -30,28 +30,28 @@ class RegistrationView(APIView):
             user = serializer.save()
         except django.db.utils.IntegrityError:
             return Response({'msg': 'Something went wrong, check input please'}, status=400)
-        if user:
-            try:
-                send_confirmation_mail.delay(user.email, user.activation_code)
-                return Response({'msg': "Check your email for confirmation!"})
-            except:
-                return Response({'msg': 'Registered but could not send email.',
-                                 'data': serializer.data}, status=201)
+        # if user:
+        #     try:
+        #         send_confirmation_mail.delay(user.email, user.activation_code)
+        #         return Response({'msg': "Check your email for confirmation!"})
+        #     except:
+        #         return Response({'msg': 'Registered but could not send email.',
+        #                          'data': serializer.data}, status=201)
         return Response(serializer.data, status=201)
 
 
-class ActivationView(GenericAPIView):
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = serializers.ActivationSerializer
+# class ActivationView(GenericAPIView):
+#     permission_classes = (permissions.AllowAny,)
+#     serializer_class = serializers.ActivationSerializer
 
-    def post(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({"msg": "Successfully activated!"}, status=200)
+#     def post(self, request):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response({"msg": "Successfully activated!"}, status=200)
     
-    def get_queryset(self):
-        return super().get_queryset()
+#     def get_queryset(self):
+#         return super().get_queryset()
     
 
 
@@ -59,7 +59,13 @@ class UserListApiView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
     permission_classes = permissions.IsAuthenticatedOrReadOnly,
+    
 
+class UserDetailApiView(RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = serializers.UserSerializer
+    permission_classes = permissions.IsAuthenticatedOrReadOnly,
+    lookup_field = 'id'
 
 
 class LoginView(TokenObtainPairView):

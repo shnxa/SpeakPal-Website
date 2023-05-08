@@ -15,7 +15,6 @@ class UserManager(BaseUserManager):
             return ValueError('The given email must be set!')
         email = self.normalize_email(email=email)
         user = self.model(email=email, **kwargs)
-        user.create_activation_code()
         user.set_password(password)
         user.save()
         return user
@@ -24,7 +23,7 @@ class UserManager(BaseUserManager):
         print(email)
         kwargs.setdefault('is_staff', False)
         kwargs.setdefault('is_superuser', False)
-        kwargs.setdefault('is_active', False)
+        kwargs.setdefault('is_active', True)
         return self._create_user(email, password, **kwargs)
 
     def create_superuser(self, email, password, **kwargs):
@@ -48,7 +47,6 @@ class CustomUser(AbstractUser):
 
     email = models.EmailField('email address', unique=True)
     password = models.CharField(max_length=255)
-    activation_code = models.CharField(max_length=255, blank=True, null=True)
     username = models.CharField(max_length=30, blank=True)
     first_name = models.CharField(max_length=70)
     last_name = models.CharField(max_length=70)
@@ -58,25 +56,12 @@ class CustomUser(AbstractUser):
     friends = models.ManyToManyField('account.CustomUser', blank=True, related_name='related_friends')
     blocked_users = models.ManyToManyField('account.CustomUser', blank=True, related_name='blocked_list')
 
-    is_active = models.BooleanField(
-        _("active"),
-        default=True,
-        help_text=_(
-            "Designates whether this user should be treated as active. "
-            "Unselect this instead of deleting accounts."
-        ),)
-
     objects = UserManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
     def __str__(self):
         return f'{self.email}'
-
-    def create_activation_code(self):
-        import uuid
-        code = str(uuid.uuid4())
-        self.activation_code = code
 
 
 class FriendRequest(models.Model):
